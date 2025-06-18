@@ -1,0 +1,55 @@
+name: Deploy RedAlchemy Backend
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy and restart backend on server
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            KEY_PATH="/tmp/github_actions_key"
+            echo "${{ secrets.SSH_PRIVATE_KEY }}" > $KEY_PATH
+            chmod 600 $KEY_PATH
+            ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+            ssh -i $KEY_PATH -T git@github.com || true
+
+            PROJECT_DIR="/opt/redalchemy/backend"
+
+            if [ ! -d "$PROJECT_DIR/.git" ]; then
+              echo "Clonando repositorio RedAlchemyBack..."
+              GIT_SSH_COMMAND="ssh -i $KEY_PATH -o IdentitiesOnly=yes" \
+                git clone git@github.com:RedRiotTank/RedAlchemyBack.git "$PROJECT_DIR"
+            else
+              echo "Actualizando repositorio existente..."
+              cd "$PROJECT_DIR"
+              GIT_SSH_COMMAND="ssh -i $KEY_PATH -o IdentitiesOnly=yes" \
+                git fetch origin
+              GIT_SSH_COMMAND="ssh -i $KEY_PATH -o IdentitiesOnly=yes" \
+                git reset --hard origin/main
+            fi
+
+            cd "$PROJECT_DIR"
+            npm install
+
+            if pm2 list | grep -q redalchemy-backend; then
+              pm2 reload redalchemy-backend
+            else
+              pm2 start index.js --name redalchemy-backend
+            fi
+
+            pm2 save
+            rm -f $KEY_PATH
