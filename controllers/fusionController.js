@@ -34,26 +34,30 @@ export const findFusion = async (req, res) => {
 };
 
 export const proposeFusion = async (req, res) => {
-  let { id1, id2, result_name, result_icon, created_by } = req.body;
+  let { element1_id, element2_id, element_result_id, created_by } = req.body;
 
-  if (!id1 || !id2 || !result_name || !result_icon || !created_by) {
-    return res.status(400).json({ error: "Missing fusion data or created_by" });
+  if (!element1_id || !element2_id || !element_result_id) {
+    return res.status(400).json({ error: "Missing required fields" });
   }
 
-  if (id1 > id2) {
-    [id1, id2] = [id2, id1];
+  if (element1_id > element2_id) {
+    [element1_id, element2_id] = [element2_id, element1_id];
   }
 
   try {
     await db.query(
-      `INSERT INTO ProposedFusion 
-       (element1_id, element2_id, result_name, result_icon, created_by)
-       VALUES (?, ?, ?, ?, ?)`,
-      [id1, id2, result_name, result_icon, created_by]
+      `INSERT INTO ProposedFusion (element1_id, element2_id, element_result_id, created_by)
+       VALUES (?, ?, ?, ?)`,
+      [element1_id, element2_id, element_result_id, created_by || null]
     );
-    res.status(201).json({ message: "Fusion proposed" });
+
+    res.status(201).json({ message: "Fusion proposal added successfully" });
   } catch (error) {
-    console.error("DB error:", error);
-    res.status(500).json({ error: "Error proposing fusion" });
+    if (error.code === "ER_DUP_ENTRY") {
+      res.status(409).json({ error: "Fusion proposal already exists" });
+    } else {
+      console.error("DB error:", error);
+      res.status(500).json({ error: "Error adding fusion proposal" });
+    }
   }
 };
