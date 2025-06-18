@@ -1,16 +1,25 @@
-const express = require("express");
-require("dotenv").config();
-const elementController = require("./controllers/elementController");
-const fusionController = require("./controllers/fusionController");
+import express from "express";
+import dotenv from "dotenv";
+import {
+  getAllElements,
+  getBaseElements,
+  proposeElement,
+} from "./controllers/elementController.js";
+import { findFusion, proposeFusion } from "./controllers/fusionController.js";
+
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 
-// Rutas
-app.get("/elements", elementController.getAllElements);
-app.get("/fusion", fusionController.findFusion);
+// Routes
+app.get("/elements", getAllElements);
+app.get("/elements/base", getBaseElements);
+app.get("/fusion", findFusion);
+app.post("/elements/propose", proposeElement);
+app.post("/fusion/propose", proposeFusion);
 
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
