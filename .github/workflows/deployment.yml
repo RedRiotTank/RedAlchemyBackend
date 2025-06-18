@@ -30,9 +30,9 @@ jobs:
             PROJECT_DIR="/opt/redalchemy/backend"
 
             if [ ! -d "$PROJECT_DIR/.git" ]; then
-              echo "Clonando repositorio RedAlchemyBack..."
+              echo "Cloning repo RedAlchemyBackend..."
               GIT_SSH_COMMAND="ssh -i $KEY_PATH -o IdentitiesOnly=yes" \
-                git clone git@github.com:RedRiotTank/RedAlchemyBack.git "$PROJECT_DIR"
+                git clone git@github.com:RedRiotTank/RedAlchemyBackend.git "$PROJECT_DIR"
             else
               echo "Actualizando repositorio existente..."
               cd "$PROJECT_DIR"
