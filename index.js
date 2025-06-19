@@ -35,6 +35,6 @@ app.get("/fusion", findFusion);
 app.post("/elements/propose", proposeElement);
 app.post("/fusion/propose", proposeFusion);
 
-app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
+app.listen(PORT, "127.0.0.1", () => {
+  console.log(`Backend listening on http://127.0.0.1:${PORT}`);
 });
