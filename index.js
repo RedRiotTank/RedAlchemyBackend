@@ -22,6 +22,12 @@ app.use(
 
 app.use(express.json());
 
+app.use((req, res, next) => {
+  console.log("Request received:", req.method, req.url);
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  next();
+});
+
 // Routes
 app.get("/elements", getAllElements);
 app.get("/elements/base", getBaseElements);
