@@ -44,3 +44,5 @@ export const proposeElement = async (req, res) => {
     res.status(500).json({ error: "Error proposing element" });
   }
 };
+
+let a = false;
