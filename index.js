@@ -1,5 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
+import cors from "cors"; // 👈 Añade esta importación
 import {
   getAllElements,
   getBaseElements,
@@ -11,6 +12,13 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+app.use(
+  cors({
+    origin: ["http://localhost:4321", "https://redalchemy.redriottank.com"],
+    methods: ["GET", "POST"],
+  })
+);
 
 app.use(express.json());
 
